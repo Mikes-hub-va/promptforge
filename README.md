@@ -59,7 +59,7 @@ The MVP is intentionally fully functional without any external API key using a d
 ## Local development
 
 ```bash
-cd /Users/michael_isa_ai_test/Documents/New project/promptforge
+cd /path/to/promptforge
 npm install
 npm run dev
 ```
@@ -77,24 +77,37 @@ Both are expected to pass before release.
 
 ## Environment variables
 
-No provider key is required for the MVP.
+You can run MVPs with no provider key.
 
-Optional future provider variables are intentionally reserved for the extension point:
+- `OPENAI_API_KEY` (optional): enables backend AI mode via `POST /api/promptforge/generate`.
+- `OPENAI_PROMPT_MODEL` (optional): model selector (default `gpt-4o-mini`).
+- `NEXT_PUBLIC_PROMPTFORGE_ENGINE_MODE` (optional): `"auto" | "heuristic" | "provider"`  
+  - `auto` uses AI when `OPENAI_API_KEY` exists, otherwise falls back to heuristic.
+  - `heuristic` forces deterministic local mode.
+  - `provider` prefers AI mode.
 
-- `OPENAI_API_KEY`
-- `ANTHROPIC_API_KEY`
+`ANTHROPIC_API_KEY` remains reserved for future adapter support.
 
-If set, the app is already wired to choose a provider adapter via `createPromptProvider()`, with a TODO to add actual adapters.
+## Provider architecture
 
-## Provider abstraction
+The engine now uses a real backend generation path:
 
-The prompt engine is split into three layers:
+1. Client submits settings to `POST /api/promptforge/generate`.
+2. Server route resolves provider mode using available keys.
+3. If enabled and healthy, requests are sent to OpenAI and returned as structured `PromptOutput`.
+4. On error or absent keys, the deterministic fallback in `lib/prompt-engine/heuristic.ts` is used.
 
-1. `lib/prompt-engine/heuristic.ts` – deterministic local engine (default)
-2. `lib/prompt-engine/provider.ts` – provider selection and interface
-3. `lib/prompt-engine/types.ts` – shared generation contracts
+The existing provider abstraction in `lib/prompt-engine/provider.ts` is preserved and now points to `runOpenAIProvider` when keys are available.
 
-To add a real LLM provider, implement a `PromptEnhancer` in `provider.ts` and switch `createPromptProvider()` to route to the new implementation when the env key is present.
+## Pricing economics
+
+Plans expose explicit run budgets and provider cost assumptions in `src/data/constants.ts`:
+- Free: 250 local runs/mo, no AI calls.
+- Pro: 2,500 runs/mo, AI-assisted with the same cap.
+
+Current cost assumption used in docs:
+- `gpt-4o-mini`, ~1500 tokens average per run (input+output).
+- Estimated monthly AI cost for Pro is modeled around ~$1.40 at max plan utilization, leaving broad margin at $9.00/mo.
 
 ## Storage model
 
