@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root {
+  --pf-bg: #f8fafc;
+  --pf-panel: #ffffff;
+  --pf-line: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% 0%, #ecfeff 0%, transparent 45%),
+    radial-gradient(circle at 80% 20%, #f5f3ff 0%, transparent 40%),
+    var(--pf-bg);
+  color: #0f172a;
+  font-family: var(--font-sans), system-ui, -apple-system, Segoe UI, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+p,
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.01em;
+}
+
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
