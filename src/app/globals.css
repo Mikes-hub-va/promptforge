@@ -1,26 +1,34 @@
 @import "tailwindcss";
 
 :root {
-  --pf-bg: #f2f6fb;
-  --pf-panel: #ffffff;
-  --pf-line: #e2e8f0;
-  --pf-text: #0f172a;
-  --pf-muted: #4b5563;
-  --pf-elev: 0 22px 70px -45px rgba(15, 23, 42, 0.35);
+  --pf-bg: #fff8f1;
+  --pf-panel: rgba(255, 255, 255, 0.78);
+  --pf-panel-strong: rgba(255, 255, 255, 0.9);
+  --pf-line: rgba(148, 163, 184, 0.26);
+  --pf-text: #111827;
+  --pf-muted: #5b6575;
+  --pf-accent: #ff6b35;
+  --pf-accent-2: #0ea5e9;
+  --pf-accent-soft: rgba(255, 107, 53, 0.14);
+  --pf-elev: 0 28px 90px -46px rgba(8, 21, 39, 0.34);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 15% 0%, #d9eafe 0%, rgba(217, 234, 254, 0) 45%),
-    radial-gradient(circle at 84% 16%, #f0e7ff 0%, rgba(240, 231, 255, 0) 42%),
-    radial-gradient(circle at 72% 84%, #eaf8f1 0%, rgba(234, 248, 241, 0) 35%),
-    linear-gradient(180deg, #f8fbff 0%, #f3f5fb 45%, #f7f9ff 100%),
+    radial-gradient(circle at 12% -4%, rgba(255, 107, 53, 0.12) 0%, rgba(255, 107, 53, 0) 30%),
+    radial-gradient(circle at 88% 12%, rgba(14, 165, 233, 0.08) 0%, rgba(14, 165, 233, 0) 24%),
+    radial-gradient(circle at 78% 82%, rgba(255, 184, 77, 0.12) 0%, rgba(255, 184, 77, 0) 24%),
+    linear-gradient(180deg, #fffdf8 0%, #fff6ed 48%, #fff9f3 100%),
     var(--pf-bg);
   color: var(--pf-text);
   font-family: var(--font-sans), system-ui, -apple-system, Segoe UI, sans-serif;
@@ -37,12 +45,17 @@ h1,
 h2,
 h3,
 h4 {
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  font-family: var(--font-code), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+::selection {
+  background: rgba(15, 111, 255, 0.16);
 }
 
 .pf-shell {
@@ -54,8 +67,22 @@ pre {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(115deg, rgba(56, 189, 248, 0.08), transparent 45%),
-    linear-gradient(245deg, rgba(139, 92, 246, 0.08), transparent 50%);
+    linear-gradient(120deg, rgba(255, 107, 53, 0.05), transparent 42%),
+    radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.04), transparent 32%);
+  pointer-events: none;
+}
+
+.pf-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+  background-position: center;
+  background-size: 36px 36px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.15), transparent 28%, transparent 72%, rgba(0, 0, 0, 0.08));
+  opacity: 0.35;
   pointer-events: none;
 }
 
@@ -68,21 +95,60 @@ pre {
   position: absolute;
   inset: 1px;
   border-radius: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   pointer-events: none;
-  opacity: 0.25;
+  opacity: 0.28;
   background: linear-gradient(
     120deg,
-    rgba(255, 255, 255, 0.4),
-    rgba(255, 255, 255, 0.03) 35%,
+    rgba(255, 255, 255, 0.46),
+    rgba(255, 255, 255, 0.08) 34%,
     rgba(255, 255, 255, 0)
   );
 }
 
 .pf-panel {
-  @apply rounded-3xl border border-slate-200/70 bg-white/85 backdrop-blur-sm shadow-[var(--pf-elev)];
+  @apply rounded-[28px] border border-white/60 bg-white/70 backdrop-blur-xl shadow-[var(--pf-elev)];
+  background: var(--pf-panel);
 }
 
 .pf-panel-muted {
-  @apply rounded-2xl border border-slate-200/80 bg-slate-50/80;
+  @apply rounded-2xl border border-white/60 bg-white/60 backdrop-blur-md;
+}
+
+.pf-soft-panel {
+  @apply rounded-2xl border border-white/60 bg-white/60 backdrop-blur-md;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.pf-gradient-border {
+  position: relative;
+}
+
+.pf-gradient-border::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(15, 111, 255, 0.15), rgba(20, 184, 166, 0.2));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.pf-noise {
+  position: relative;
+}
+
+.pf-noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(15, 23, 42, 0.045) 0.6px, transparent 0.6px);
+  background-size: 12px 12px;
+  opacity: 0.16;
+  pointer-events: none;
 }

@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://promptforge.app/sitemap.xml",
-    host: "https://promptforge.app",
+    sitemap: "https://usepromptify.org/sitemap.xml",
+    host: "https://usepromptify.org",
   };
 }

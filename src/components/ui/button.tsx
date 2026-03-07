@@ -5,16 +5,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium whitespace-nowrap ring-offset-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&>svg]:size-4",
+  "inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold whitespace-nowrap ring-offset-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&>svg]:size-4",
   {
     variants: {
       variant: {
         default:
-          "bg-slate-900 text-white shadow-[0_8px_24px_-10px_rgba(15,23,42,0.5)] hover:bg-slate-800 hover:shadow-[0_12px_30px_-12px_rgba(15,23,42,0.65)]",
-        secondary: "bg-white text-slate-900 ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300",
+          "border border-orange-400/30 bg-[linear-gradient(135deg,#ff6b35_0%,#ff8a48_55%,#ffb84d_100%)] text-white shadow-[0_14px_34px_-18px_rgba(249,115,22,0.46)] hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-18px_rgba(249,115,22,0.54)]",
+        secondary:
+          "bg-white/85 text-slate-900 ring-1 ring-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] backdrop-blur-sm hover:bg-white hover:ring-orange-100",
         outline:
-          "border border-slate-200/90 text-slate-900 bg-white/75 hover:bg-white hover:text-slate-950 hover:border-slate-300",
-        ghost: "text-slate-900 hover:bg-slate-900/10",
+          "border border-slate-200/80 bg-white/72 text-slate-800 backdrop-blur-sm hover:border-orange-200 hover:bg-white hover:text-slate-950",
+        ghost: "text-slate-700 hover:bg-orange-50/80 hover:text-slate-950",
         destructive: "bg-rose-600 text-white hover:bg-rose-700",
       },
       size: {

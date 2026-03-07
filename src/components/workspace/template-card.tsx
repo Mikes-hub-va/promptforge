@@ -19,9 +19,19 @@ export function TemplateCard({ preset, onUse }: { preset: TemplatePreset; onUse?
         <p className="mb-4 text-sm text-slate-700">{preset.exampleInputs.goal}</p>
         <div className="flex items-center justify-between text-xs text-slate-500">
           <span>{preset.outputStyle}</span>
-          <Button size="sm" onClick={onUse} variant="outline" asChild>
-            <Link href={`/templates/${preset.slug}`}>Use preset</Link>
-          </Button>
+          {onUse ? (
+            <Button size="sm" onClick={onUse} variant="outline">
+              Use now
+            </Button>
+          ) : (
+            <Button size="sm" variant="outline" asChild>
+              <Link href={`/templates/${preset.slug}`}>Open preset</Link>
+            </Button>
+          )}
+        </div>
+        <div className="mt-4 flex items-center justify-between text-xs text-slate-600">
+          <span>{preset.category}</span>
+          <span>Model: {preset.recommendedFields.targetModel ?? "balanced defaults"}</span>
         </div>
       </CardContent>
     </Card>

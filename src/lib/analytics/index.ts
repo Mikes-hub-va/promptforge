@@ -16,7 +16,7 @@ export function trackEvent(event: keyof typeof ANALYTICS_EVENTS, payload: Record
   };
 
   if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("promptforge:analytics", { detail }));
+    window.dispatchEvent(new CustomEvent("promptify:analytics", { detail }));
     if (process.env.NODE_ENV === "development") {
       console.info("Analytics event", detail);
     }

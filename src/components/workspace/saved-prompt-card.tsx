@@ -14,6 +14,7 @@ export function SavedPromptCard({
   onDelete,
   onCopy,
   onToggleStar,
+  onOpen,
 }: {
   prompt: SavedPrompt;
   onDuplicate: () => void;
@@ -21,6 +22,7 @@ export function SavedPromptCard({
   onDelete: () => void;
   onCopy: () => void;
   onToggleStar: () => void;
+  onOpen: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(prompt.name);
@@ -53,9 +55,15 @@ export function SavedPromptCard({
           ) : (
             <CardTitle>{prompt.name}</CardTitle>
           )}
-          <button type="button" onClick={onToggleStar} aria-label="toggle favorite" className="text-slate-500">
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={onToggleStar}
+            aria-label="toggle favorite"
+            className="h-9 w-9 rounded-lg text-slate-500"
+          >
             <Star className={`h-5 w-5 ${prompt.isFavorite ? "fill-amber-400 text-amber-500" : ""}`} />
-          </button>
+          </Button>
         </div>
         <CardDescription className="text-xs">{prompt.updatedAt}</CardDescription>
       </CardHeader>
@@ -63,6 +71,9 @@ export function SavedPromptCard({
         <Badge variant="outline">{prompt.settings.useCase}</Badge>
         <p className="text-sm text-slate-700">{prompt.output.basePrompt.slice(0, 150)}...</p>
         <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="secondary" onClick={onOpen}>
+            Open in workspace
+          </Button>
           <Button size="sm" onClick={onCopy}>
             <Copy className="h-4 w-4" /> Copy
           </Button>

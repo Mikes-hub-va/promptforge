@@ -410,11 +410,11 @@ export const PRESET_LIBRARY: TemplatePreset[] = [
     {
       goal: "Define a build plan plus implementation prompt blocks",
       useCase: "coding",
-      desiredStructure: "mvp scope->architecture->apis->milestones->validation",
+      desiredStructure: "scope->architecture->apis->milestones->validation",
     },
     {
       rawPrompt: "Create a habit tracking app",
-      goal: "Plan MVP implementation and handoff prompts",
+      goal: "Plan production-ready implementation and handoff prompts",
       audience: "Full stack developers",
       context: "Mobile-first with React Native",
       constraints: "No paid services, offline cache support",

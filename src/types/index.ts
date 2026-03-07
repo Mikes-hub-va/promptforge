@@ -25,7 +25,40 @@ export type PromptTone =
 export type OutputFormat = "plain" | "bullet" | "markdown" | "json" | "table" | "steps";
 export type DetailLevel = "concise" | "balanced" | "detailed";
 
+export type ProviderKind = "local" | "openai" | "anthropic" | "gemini";
+export type EngineMode = "heuristic" | "provider";
+export type BillingStatus = "inactive" | "trialing" | "active" | "past_due" | "canceled";
+
+export interface ProviderModelChoice {
+  provider: ProviderKind;
+  model: string;
+  apiKey?: string;
+  baseUrl?: string;
+}
+
+export interface PromptComparisonOutput {
+  id: string;
+  provider: ProviderKind;
+  model: string;
+  output: PromptOutput;
+  mode: EngineMode;
+  costEstimateUsd?: number;
+}
+
 export type PlanTier = "free" | "pro" | "team";
+
+export interface AuthUser {
+  id: ID;
+  email: string;
+  name: string;
+  planTier: PlanTier;
+  billingStatus: BillingStatus;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  subscriptionCurrentPeriodEnd?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface PromptSettings {
   id: ID;
@@ -60,6 +93,8 @@ export interface PromptOutput {
   sourceSettingsId: ID;
   createdAt: string;
   basePrompt: string;
+  qualityScore?: number;
+  qualityFlags?: string[];
   variants: PromptOutputVariant[];
   structuredPrompt: string;
   systemPrompt: string;
@@ -82,7 +117,7 @@ export interface PromptDraft {
 }
 
 export interface SavedPrompt extends PromptDraft {
-  source: "local";
+  source: "local" | "account";
 }
 
 export interface HistoryEntry {
@@ -138,6 +173,11 @@ export interface Plan {
   accent?: string;
   price: string;
   frequency: string;
+  monthlyPromptRuns: number;
+  aiMonthlyRuns: number;
+  aiModel: string;
+  estimatedModelCostUsd?: number;
+  estimatedProviderRunCostUsd?: number;
   highlight?: boolean;
   comingSoon?: boolean;
   description: string;

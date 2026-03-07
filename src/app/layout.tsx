@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Manrope } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import SiteNav from "@/components/navigation/site-nav";
 import SiteFooter from "@/components/navigation/site-footer";
@@ -105,6 +107,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             </div>
           </PromptifyStoreProvider>
         </AuthProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

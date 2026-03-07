@@ -1,17 +1,17 @@
-# PromptForge Repo Workflow
+# usePromptify Repo Workflow
 
 This directory is a standalone product repo. Do not mix work from other products here.
 
 ## Session Start
 
 1. Run `bash /Users/michael_isa_ai_test/Documents/codex-repo-check.sh .`
-2. Confirm the repo root and `origin` match PromptForge before editing.
+2. Confirm the repo root and `origin` match usePromptify before editing.
 3. If the user asks for another product, stop and tell them to open that repo in a new Codex chat.
 
 ## Branching
 
 - Use `codex/<short-task-name>` for new feature or fix work.
-- Keep PromptForge work in this repo only.
+- Keep usePromptify work in this repo only.
 
 ## Commit Policy
 

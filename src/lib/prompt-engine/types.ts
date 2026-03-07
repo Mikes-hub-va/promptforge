@@ -1,12 +1,21 @@
 import { PromptDiffPoint, PromptOutput, PromptSettings } from "@/types";
 
+export type ProviderRuntimeConfig = {
+  provider: "openai" | "anthropic" | "gemini" | "local";
+  model?: string;
+  apiKey?: string;
+  baseUrl?: string;
+};
+
 export interface PromptGenerationInput {
   settings: PromptSettings;
 }
 
 export interface PromptGenerationContext {
   provider: "heuristic" | "provider";
+  hasProviderConfig: boolean;
   appVersion: string;
+  providerConfig?: ProviderRuntimeConfig;
 }
 
 export interface PromptGenerationResult {
@@ -23,6 +32,9 @@ export interface PromptEnhancer {
 export function makeContext() {
   return {
     provider: "heuristic" as const,
-    appVersion: process.env.NEXT_PUBLIC_PROMPTFORGE_VERSION ?? "1.0.0",
+    hasProviderConfig: false,
+    appVersion: process.env.NEXT_PUBLIC_PROMPTIFY_VERSION
+      ?? process.env.NEXT_PUBLIC_PROMPTFORGE_VERSION
+      ?? "1.0.0",
   };
 }

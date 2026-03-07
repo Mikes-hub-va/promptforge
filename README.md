@@ -1,8 +1,8 @@
-# PromptForge
+# usePromptify
 
-PromptForge is a Next.js 16 App Router web app that converts rough or under-specified prompt ideas into structured, high-quality prompts for AI systems.
+usePromptify is the working repo and cloud workspace for the Promptify product. The app is a Next.js 16 App Router web app that converts rough or under-specified prompt ideas into structured, high-quality prompts for AI systems.
 
-The MVP is intentionally fully functional without any external API key using a deterministic prompt-engine that adds structure, constraints, and multiple variants.
+The app works in guest mode without any external API key using a deterministic prompt-engine, and it can also run with real accounts, Stripe billing, and a low-cost managed provider lane.
 
 ## Stack
 
@@ -11,7 +11,8 @@ The MVP is intentionally fully functional without any external API key using a d
 - Tailwind CSS
 - shadcn-style shared UI components
 - React Hook Form + Zod
-- localStorage-backed persistence
+- SQLite-backed accounts and synced prompt storage
+- Stripe checkout + billing portal + webhook support
 - ESLint + TypeScript strictness for production-safe code
 
 ## Features Included
@@ -24,9 +25,16 @@ The MVP is intentionally fully functional without any external API key using a d
   - Optional context/constraints/examples toggles
   - Template preset application
   - Deterministic refine engine
+  - Managed provider path gated to Pro accounts when server keys are configured
+  - BYOK provider access for users who want session-only keys
   - Multiple variants: improved, concise, detailed, variant A/B, model-specific
   - Compare view vs original with rationale summary
   - Copy and export as `.txt`/`.md`
+- Accounts (`/account`)
+  - Email/password signup and login
+  - Session cookies
+  - Synced saved prompts and history
+  - Stripe billing entry point for Pro
 - Templates (`/templates`)
   - Multiple seeded presets across writing, coding, marketing, images, and agents
   - Per-template detail pages
@@ -39,32 +47,50 @@ The MVP is intentionally fully functional without any external API key using a d
   - `sitemap.xml` (includes template routes)
 - Basic legal/product pages
   - `/about`, `/faq`, `/contact`, `/privacy`, `/terms`, `/changelog`
-- Vercel-friendly architecture
-  - Server/client boundaries aligned with App Router
-  - No database required for MVP
 
 ## Project structure
 
-- `app/` – routes and route-level metadata
-- `components/marketing` – landing page and content blocks
-- `components/workspace` – workspace and prompt workflow components
-- `components/navigation` – header/footer
-- `components/ui` – reusable UI primitives
-- `lib/prompt-engine` – deterministic prompt refinement and provider abstraction
-- `lib/storage` – localStorage abstraction and global store
-- `components/seo` – JSON-LD helper
-- `data/` – constants and seeded presets
-- `types/` – shared application types
+- `src/app/` – routes, metadata, route handlers, and generated social cards
+- `src/components/marketing` – landing page and pricing surfaces
+- `src/components/workspace` – workspace and prompt workflow components
+- `src/components/navigation` – header/footer
+- `src/components/account` – auth and billing UI
+- `src/components/branding` – Promptify brand assets
+- `src/components/ui` – reusable UI primitives
+- `src/lib/auth` – account and session helpers
+- `src/lib/billing` – Stripe helpers
+- `src/lib/db.ts` – SQLite connection and schema bootstrap
+- `src/lib/prompt-engine` – deterministic prompt refinement and provider adapters
+- `src/lib/storage` – guest-mode local storage + client store orchestration
+- `src/lib/prompt-store` – account-backed saved/history persistence
+- `src/components/seo` – JSON-LD helper
+- `src/data/` – constants, presets, and guide content
+- `src/types/` – shared application types
 
 ## Local development
 
 ```bash
-cd /path/to/promptforge
+cd /path/to/usepromptify
 npm install
 npm run dev
 ```
 
 Then open `http://localhost:3000`.
+
+## Cloud workspace
+
+The repo is prepared for GitHub Codespaces so you can continue work from another computer without rebuilding the environment by hand.
+
+```bash
+gh auth refresh -h github.com -s codespace
+gh codespace create -R Mikes-hub-va/usepromptify -b codex/usepromptify-cloud-ready --default-permissions --display-name "usePromptify" --idle-timeout 4h --retention-period 72h --devcontainer-path .devcontainer/devcontainer.json
+```
+
+After the codespace is created:
+
+```bash
+gh codespace code -R Mikes-hub-va/usepromptify -w
+```
 
 ## Build and quality checks
 
@@ -73,49 +99,62 @@ npm run lint
 npm run build
 ```
 
-Both are expected to pass before release.
+Both are expected to pass before release. The production build is intentionally pinned to webpack right now because Turbopack builds were producing an unstable `next start` runtime for this app.
 
 ## Environment variables
 
-You can run MVPs with no provider key.
+Promptify runs in guest local mode with no provider key. Copy `.env.example` to `.env.local` when you want to wire accounts, billing, and hosted providers.
 
-- `OPENAI_API_KEY` (optional): enables backend AI mode via `POST /api/promptforge/generate`.
-- `OPENAI_PROMPT_MODEL` (optional): model selector (default `gpt-4o-mini`).
-- `NEXT_PUBLIC_PROMPTFORGE_ENGINE_MODE` (optional): `"auto" | "heuristic" | "provider"`  
-  - `auto` uses AI when `OPENAI_API_KEY` exists, otherwise falls back to heuristic.
+- `PROMPTIFY_DATABASE_PATH` (optional): SQLite file path (default `./data/promptify.sqlite`).
+- `OPENAI_API_KEY` (optional): enables the managed OpenAI-compatible generation lane.
+- `OPENAI_API_BASE_URL` (optional): set this to an OpenAI-compatible host such as OpenRouter.
+- `OPENAI_PROVIDER_LABEL` (optional): label the managed OpenAI-compatible lane in the product UI.
+- `OPENAI_SITE_URL` / `OPENAI_APP_NAME` (optional): attribution headers for OpenRouter.
+- `ANTHROPIC_API_KEY` (optional): enables Anthropic-backed generation.
+- `GEMINI_API_KEY` (optional): enables Gemini-backed generation.
+- `OPENAI_PROMPT_MODEL` (optional): default OpenAI-compatible model selector (default `openai/gpt-oss-20b`).
+- `NEXT_PUBLIC_PROMPTIFY_VERSION` (optional): version shown in the UI footer.
+- `NEXT_PUBLIC_PROMPTIFY_ENGINE_MODE` (optional): `"auto" | "heuristic" | "provider"`
+  - `auto` prefers hosted generation when a compatible provider key is available for the current user, otherwise falls back to heuristic.
   - `heuristic` forces deterministic local mode.
   - `provider` prefers AI mode.
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (optional): Stripe publishable key for billing surfaces.
+- `STRIPE_SECRET_KEY`: required for real checkout sessions.
+- `STRIPE_PRICE_PRO_MONTHLY`: Stripe price ID for the Pro subscription.
+- `STRIPE_WEBHOOK_SECRET`: required for Stripe webhook verification.
 
-`ANTHROPIC_API_KEY` remains reserved for future adapter support.
+Session-entered provider keys from the workspace are never persisted; they are only forwarded for the active run.
 
 ## Provider architecture
 
-The engine now uses a real backend generation path:
+The engine uses a real backend generation path:
 
-1. Client submits settings to `POST /api/promptforge/generate`.
-2. Server route resolves provider mode using available keys.
-3. If enabled and healthy, requests are sent to OpenAI and returned as structured `PromptOutput`.
+1. Client submits settings to `POST /api/promptify/generate`.
+2. Server route resolves provider mode using a session key or a managed provider key.
+3. Managed provider usage is gated to Pro accounts. Free users still get local mode and BYOK.
+4. If enabled and healthy, requests are sent to OpenAI, Anthropic, or Gemini and returned as structured `PromptOutput`.
 4. On error or absent keys, the deterministic fallback in `lib/prompt-engine/heuristic.ts` is used.
 
-The existing provider abstraction in `lib/prompt-engine/provider.ts` is preserved and now points to `runOpenAIProvider` when keys are available.
+The provider abstraction in `lib/prompt-engine/provider.ts` routes to the matching provider adapter when keys are available.
 
-## Pricing economics
+## Pricing structure
 
-Plans expose explicit run budgets and provider cost assumptions in `src/data/constants.ts`:
-- Free: 250 local runs/mo, no AI calls.
-- Pro: 2,500 runs/mo, AI-assisted with the same cap.
+Pricing is intentionally simple and launch-practical:
 
-Current cost assumption used in docs:
-- `gpt-4o-mini`, ~1500 tokens average per run (input+output).
-- Estimated monthly AI cost for Pro is modeled around ~$1.40 at max plan utilization, leaving broad margin at $9.00/mo.
+- Starter: `$0`, guest/local mode, account sync, and BYOK access.
+- Promptify Pro: `$12/month`, Stripe-billed, managed low-cost OpenRouter runs, and unlimited BYOK.
+- Studio: contact-led onboarding for collaborative rollout.
+
+The product is designed so the free tier is genuinely useful, Pro stays affordable by using a low-cost managed model, and team pricing only appears when governance features are ready.
 
 ## Storage model
 
-Persistence is local-only through browser storage for now:
+Prompt persistence now supports two modes:
 
+- Guest mode: browser localStorage
+- Signed-in mode: SQLite-backed storage scoped to the user account
 - `/saved` stores polished prompts as `SavedPrompt`
 - `/history` stores recent generations
-- Storage interface is intentionally isolated (`lib/storage/localStorage.ts`, `lib/storage/manager.tsx`) for future migration to auth/database.
 
 ## Route map
 
@@ -125,11 +164,11 @@ Persistence is local-only through browser storage for now:
 - `/templates/[slug]` preset details
 - `/saved` saved draft manager
 - `/history` recent generations
-- `/pricing`, `/about`, `/faq`, `/contact`, `/privacy`, `/terms`, `/changelog`
+- `/pricing`, `/account`, `/about`, `/faq`, `/contact`, `/privacy`, `/terms`, `/changelog`
 
-## Vercel deployment
+## Deployment
 
-PromptForge is deployable directly from GitHub to Vercel.
+Promptify uses SQLite for real accounts and synced prompt storage. That means production deployment needs a runtime with a persistent filesystem, or a swap to a hosted database before going live on serverless infrastructure.
 
 ```bash
 # from repo root
@@ -137,18 +176,35 @@ npm install
 npm run build
 ```
 
-Recommended Vercel settings:
+Before publish:
 
-- Framework preset: Next.js
-- Build command: `npm run build`
-- Output directory: `.next`
+- Set the env vars from `.env.example`
+- Provision a persistent disk for `PROMPTIFY_DATABASE_PATH`, or replace SQLite with a hosted database
+- Configure Stripe webhook delivery to `/api/stripe/webhook`
+- Set any provider keys you want available for managed Pro runs
+
+### Vercel note
+
+Vercel is fine for project setup and preview deployment, but it is not the right production backing store for the current SQLite implementation.
+
+- Preview deploys can run with `PROMPTIFY_DATABASE_PATH=/tmp/promptify.sqlite`
+- Production should move accounts, sessions, saved prompts, and billing state to a hosted database before pointing `usepromptify.org` at the app
+
+## Launch checklist
+
+- Run `npm run lint`
+- Run `npm run build`
+- Set production env vars from `.env.example`
+- Verify `/`, `/workspace`, `/account`, `/pricing`, `/saved`, and `/history` in a browser
+- Confirm the production domain is `https://usepromptify.org`
+- Confirm `hello@usepromptify.org` or your chosen launch inbox is monitored
 
 ## Updating branding or adding templates
 
-- Brand/copy: edit `app/layout.tsx`, `src/components/navigation/site-nav.tsx`, and landing components under `components/marketing`.
-- Add new presets: edit `data/presets.ts` with the same `TemplatePreset` shape.
-- Add new pages: create folders/files under `app/` with matching metadata and content blocks.
+- Brand/copy: edit `src/app/layout.tsx`, `src/components/navigation/site-nav.tsx`, and landing components under `src/components/marketing`.
+- Add new presets: edit `src/data/presets.ts` with the same `TemplatePreset` shape.
+- Add new pages: create folders/files under `src/app/` with matching metadata and content blocks.
 
 ## Notes
 
-- This repository is production-oriented for MVP and can be extended with authentication, billing, and real LLM providers without changing the front-door workspace flow.
+- This repository now includes real accounts, real billing plumbing, and a real provider architecture. If you keep SQLite, deploy it somewhere with persistent storage.

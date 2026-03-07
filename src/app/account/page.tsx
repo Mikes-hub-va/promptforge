@@ -13,6 +13,7 @@ export default function AccountPage() {
 
   return (
     <AccountPageClient
+      billing={platform.billing}
       billingReady={platform.billingReady}
       domain={APP_DOMAIN}
       managedProviders={platform.managedProviders}
