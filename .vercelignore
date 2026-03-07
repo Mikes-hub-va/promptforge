@@ -1,0 +1,6 @@
+.git
+.next
+.next_prev_*
+/data
+node_modules
+output

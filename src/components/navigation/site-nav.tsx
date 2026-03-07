@@ -1,29 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { Flame, Menu, X, Sparkles } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { NAV_ITEMS } from "@/data/constants";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/lib/auth/client";
+import { PromptifyMark } from "@/components/branding/promptify-mark";
+import { Button } from "@/components/ui/button";
 
 export default function SiteNav() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const { user } = useAuth();
+
+  const isActive = (href: string) => {
+    if (href === "/" && pathname === "/") return true;
+    if (href !== "/" && pathname.startsWith(href)) return true;
+    return false;
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-8">
-        <Link href="/" className="inline-flex items-center gap-2">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white shadow-[0_8px_24px_-10px_rgba(15,23,42,0.45)]">
-            <Flame className="h-5 w-5" />
-          </span>
-          <span className="text-lg font-semibold tracking-tight">PromptForge</span>
+        <Link href="/" className="inline-flex items-center gap-2" onClick={() => setOpen(false)}>
+          <PromptifyMark />
         </Link>
 
-        <nav className="hidden gap-7 md:flex">
+        <nav className="hidden gap-7 md:flex" aria-label="Primary">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-900/[0.05] hover:text-slate-900"
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                isActive(item.href)
+                  ? "border border-orange-100 bg-orange-50 text-orange-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
+                  : "text-slate-700 hover:bg-white/80 hover:text-slate-900"
+              }`}
             >
               {item.label}
             </Link>
@@ -32,37 +45,62 @@ export default function SiteNav() {
 
         <div className="hidden md:flex items-center gap-2">
           <Link
+            href="/account"
+            className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"
+          >
+            {user ? user.name.split(" ")[0] : "Sign in"}
+          </Link>
+          <Link
             href="/workspace"
-            className="rounded-lg bg-slate-900 px-3.5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-12px_rgba(15,23,42,0.55)]"
+            className="rounded-lg border border-orange-300/60 bg-[linear-gradient(135deg,#ff6b35_0%,#ff8a48_55%,#ffb84d_100%)] px-3.5 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_-18px_rgba(249,115,22,0.48)]"
           >
             Open Workspace
           </Link>
         </div>
 
-        <button
+        <Button
           type="button"
-          className="rounded-lg border border-slate-200 p-2 md:hidden"
+          variant="outline"
+          size="icon"
+          className="rounded-lg md:hidden"
           onClick={() => setOpen((state) => !state)}
           aria-label="Menu"
+          aria-expanded={open}
+          aria-controls="mobile-navigation"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        </Button>
       </div>
 
       {open ? (
-        <div className="space-y-2 border-t border-slate-200 bg-white p-4 md:hidden">
+        <div id="mobile-navigation" className="space-y-2 border-t border-slate-200 bg-white p-4 md:hidden">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-900/[0.06]"
+              className={`block rounded-lg px-3 py-2 text-sm font-medium transition ${
+                isActive(item.href)
+                  ? "border border-orange-100 bg-orange-50 text-orange-800"
+                  : "text-slate-700 hover:bg-white/80"
+              }`}
               onClick={() => setOpen(false)}
             >
               {item.label}
             </Link>
           ))}
-          <Link href="/workspace" className="mt-2 block rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white">
+          <Link
+            href="/workspace"
+            className="mt-2 block rounded-lg border border-orange-300/60 bg-[linear-gradient(135deg,#ff6b35_0%,#ff8a48_55%,#ffb84d_100%)] px-3 py-2 text-sm font-semibold text-white"
+            onClick={() => setOpen(false)}
+          >
             Open Workspace
+          </Link>
+          <Link
+            href="/account"
+            className="block rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700"
+            onClick={() => setOpen(false)}
+          >
+            {user ? user.name.split(" ")[0] : "Sign in"}
           </Link>
         </div>
       ) : null}
@@ -72,8 +110,8 @@ export default function SiteNav() {
 
 export function ProductMark({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-900/90 px-3 py-1 text-xs font-semibold text-white">
-      <Sparkles className="h-3.5 w-3.5" />
+    <span className="inline-flex items-center gap-2 rounded-full border border-orange-100 bg-white/88 px-3 py-1 text-xs font-semibold text-slate-700 shadow-[0_10px_30px_-24px_rgba(249,115,22,0.35)]">
+      <span className="h-2.5 w-2.5 rounded-full bg-[linear-gradient(135deg,#ff6b35,#0ea5e9)]" />
       {label}
     </span>
   );

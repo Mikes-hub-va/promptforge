@@ -1,28 +1,34 @@
-import type { Metadata } from "next";
-import { Inter, Source_Code_Pro } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { JetBrains_Mono, Manrope } from "next/font/google";
 import "./globals.css";
 import SiteNav from "@/components/navigation/site-nav";
 import SiteFooter from "@/components/navigation/site-footer";
-import { PromptForgeStoreProvider } from "@/lib/storage/manager";
+import { AuthProvider } from "@/lib/auth/client";
+import { getCurrentUser } from "@/lib/auth/server";
+import { PromptifyStoreProvider } from "@/lib/storage/manager";
 
-const inter = Inter({
+const manrope = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const sourceCode = Source_Code_Pro({
+const sourceCode = JetBrains_Mono({
   variable: "--font-code",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://promptforge.app"),
+  metadataBase: new URL("https://usepromptify.org"),
+  applicationName: "Promptify",
   title: {
-    default: "PromptForge",
-    template: "%s | PromptForge",
+    default: "Promptify",
+    template: "%s | Promptify",
   },
   description:
-    "Refine rough prompts into high-performing, structured prompts for AI systems with local-only engine generation.",
+    "Promptify turns rough ideas into structured prompt packs with synced accounts, managed runs, BYOK routing, and a polished workspace for repeatable prompt operations.",
+  category: "developer tools",
+  creator: "Promptify",
+  publisher: "Promptify",
   keywords: [
     "prompt engineering",
     "prompt tool",
@@ -32,41 +38,73 @@ export const metadata: Metadata = {
     "prompt optimization",
   ],
   alternates: {
-    canonical: "https://promptforge.app/",
+    canonical: "https://usepromptify.org/",
+  },
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/promptify-mark.svg", type: "image/svg+xml" },
+      { url: "/icon", sizes: "64x64", type: "image/png" },
+    ],
+    apple: [{ url: "/icon", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/favicon.ico"],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Promptify",
   },
   openGraph: {
-    title: "PromptForge",
-    description: "Turn your raw ideas into copy-ready AI prompts.",
+    title: "Promptify",
+    description: "Turn rough ideas into structured, execution-ready prompt packs.",
+    siteName: "Promptify",
     type: "website",
-    url: "https://promptforge.app",
+    url: "https://usepromptify.org",
     images: [
       {
-        url: "https://promptforge.app/og.png",
+        url: "https://usepromptify.org/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "PromptForge workspace",
+        alt: "Promptify social preview",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PromptForge",
-    description: "Turn your rough prompt into a structured execution-ready instruction set.",
-    images: ["https://promptforge.app/og.png"],
+    title: "Promptify",
+    description: "Turn rough prompts into structured execution-ready instruction sets.",
+    images: ["https://usepromptify.org/twitter-image"],
   },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export const viewport: Viewport = {
+  themeColor: "#ff6b35",
+  colorScheme: "light",
+};
+
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const currentUser = await getCurrentUser();
+
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${sourceCode.variable} antialiased`}>
-        <PromptForgeStoreProvider>
-          <div className="pf-shell min-h-screen text-slate-900">
-            <SiteNav />
-            <main className="relative">{children}</main>
-            <SiteFooter />
-          </div>
-        </PromptForgeStoreProvider>
+      <body className={`${manrope.variable} ${sourceCode.variable} antialiased`}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-slate-950 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        >
+          Skip to content
+        </a>
+        <AuthProvider initialUser={currentUser}>
+          <PromptifyStoreProvider>
+            <div className="pf-shell min-h-screen text-slate-900">
+              <SiteNav />
+              <main id="main-content" className="relative">
+                {children}
+              </main>
+              <SiteFooter />
+            </div>
+          </PromptifyStoreProvider>
+        </AuthProvider>
       </body>
     </html>
   );
